@@ -84,36 +84,36 @@ namespace TVShowsReviewAPI.Controllers
             {
                 return NotFound(new Response(404, "any user reviews. Table of user reviews does not exist."));
             }
-            var userReviews = await _context.UserReviews.FindAsync(id);
+            var userReview = await _context.UserReviews.FindAsync(id);
 
-            if (userReviews == null)
+            if (userReview == null)
             {
                 return NotFound(new Response(404, $"user review with review id of {id}. The review does not exist in the database."));
             }
-            return Ok(new Response(200, "user reviews", userReviews));
+            return Ok(new Response(200, "user reviews", userReview));
         }
 
         // PUT: api/UserReviews/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUserReviews(int id, UserReviews userReviews)
+        public async Task<IActionResult> PutUserReviews(int id, UserReviews userReview)
         {
-            if (id != userReviews.ReviewId)
+            if (id != userReview.ReviewId)
             {
                 return BadRequest(new Response(400));
             }
 
             // Allow editing for a user review but prevent ShowId, ReviewId, and UserId from being modified.
-            _context.Entry(userReviews).State = EntityState.Modified;
-            _context.Entry(userReviews).Property(x => x.UserId).IsModified = false;
-            _context.Entry(userReviews).Property(x => x.ReviewId).IsModified = false;
-            _context.Entry(userReviews).Property(x => x.ShowId).IsModified = false;
+            _context.Entry(userReview).State = EntityState.Modified;
+            _context.Entry(userReview).Property(x => x.UserId).IsModified = false;
+            _context.Entry(userReview).Property(x => x.ReviewId).IsModified = false;
+            _context.Entry(userReview).Property(x => x.ShowId).IsModified = false;
 
             // Check if user rating was updated. Based on this update AVGUserRating of ShowId.
-            if (_context.Entry(userReviews).Property(x => x.UserRating).IsModified == true)
+            if (_context.Entry(userReview).Property(x => x.UserRating).IsModified == true)
             {
-                var tvShow = await _context.TVShows.FindAsync(userReviews.ShowId);
-                var reviews = await _context.UserReviews.Where(r => r.ShowId ==  userReviews.ShowId).ToListAsync();
+                var tvShow = await _context.TVShows.FindAsync(userReview.ShowId);
+                var reviews = await _context.UserReviews.Where(r => r.ShowId ==  userReview.ShowId).ToListAsync();
                 tvShow.AVGUserRating = Math.Round(reviews.Average(r => r.UserRating), 1);
             }
 
@@ -140,38 +140,38 @@ namespace TVShowsReviewAPI.Controllers
         // POST: api/UserReviews
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<UserReviews>> PostUserReviews(UserReviews userReviews)
+        public async Task<ActionResult<UserReviews>> PostUserReviews(UserReviews userReview)
         {
             if (_context.UserReviews == null)
             {
                 return Problem("Entity set 'ShowsDBContext.UserReviews'  is null.");
             }
 
-            if (UserReviewsExists(userReviews.ReviewId, userReviews.ShowId, userReviews.UserId))
+            // Set ReviewId to null so that user is given a ReviewId from database.
+            userReview.ReviewId = null;
+            if (UserReviewsExists(userReview.ReviewId, userReview.ShowId, userReview.UserId))
             {
                 return Conflict(new Response(409));
             }
 
-            var user = await _context.Users.FindAsync(userReviews.UserId);
+            var user = await _context.Users.FindAsync(userReview.UserId);
 
             if (user == null)
             {
                 return BadRequest(new Response(400));
             }
 
-            // Set ReviewId to null so that user is given a ReviewId from database.
-            userReviews.ReviewId = null;
-            _context.UserReviews.Add(userReviews);
+            _context.UserReviews.Add(userReview);
             user.NumOfReviews++;
             // Update AVGUserRating for that show
-            var tvShow = await _context.TVShows.FindAsync(userReviews.ShowId);
-            var reviews = await _context.UserReviews.Where(r => r.ShowId == userReviews.ShowId).ToListAsync();
+            var tvShow = await _context.TVShows.FindAsync(userReview.ShowId);
+            var reviews = await _context.UserReviews.Where(r => r.ShowId == userReview.ShowId).ToListAsync();
 
             // The new user review does not register as added when recalculating using Average() so it must be manually done like this.
-            tvShow.AVGUserRating = Math.Round((reviews.Sum(r => r.UserRating)+userReviews.UserRating) / (reviews.Count+1), 1);
+            tvShow.AVGUserRating = Math.Round((reviews.Sum(r => r.UserRating)+userReview.UserRating) / (reviews.Count+1), 1);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetUserReviews", new { id = userReviews.ReviewId }, new Response(201, $"user review for user of UserId {userReviews.UserId} for ShowId {userReviews.ShowId}.", userReviews));
+            return CreatedAtAction("GetUserReviews", new { id = userReview.ReviewId }, new Response(201, $"user review for user of UserId {userReview.UserId} for ShowId {userReview.ShowId}.", userReview));
         }
 
         // DELETE: api/UserReviews/5
