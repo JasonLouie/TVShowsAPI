@@ -4,8 +4,8 @@ namespace TVShowsReviewAPI.Models
 {
 	public class TVShows
 	{
-		[Key]
-		public int ShowId { get; set; }
+        [Key]
+        public int ShowId { get; set; }
 		public string ShowName { get; set; }
 		public string ShowDesc { get; set; }
 		public virtual ICollection<Genres> Genres { get; set; } = new List<Genres>();

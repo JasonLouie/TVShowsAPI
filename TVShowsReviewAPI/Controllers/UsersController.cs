@@ -48,10 +48,10 @@ namespace TVShowsReviewAPI.Controllers
 
             if (user == null)
             {
-                return NotFound(new Response(404, $"user of id {id}. User does not exist in the database."));
+                return NotFound(new Response(404, $"user of UserId {id}. User does not exist in the database."));
             }
 
-            return Ok(new Response(200, $"user of id {id}.", user));
+            return Ok(new Response(200, $"user of UserId {id}.", user));
         }
 
         // PUT: api/Users/5
@@ -62,6 +62,11 @@ namespace TVShowsReviewAPI.Controllers
             if (id != user.UserId)
             {
                 return BadRequest(new Response(400));
+            }
+            // Check to see if username is already being used in the database.
+            if (UsersExists(0, user.Username))
+            {
+                return Conflict(new Response(409));
             }
 
             // Prevent Modification of UserId and NumOfReviews.
@@ -77,7 +82,7 @@ namespace TVShowsReviewAPI.Controllers
             {
                 if (!UsersExists(id))
                 {
-                    return NotFound(new Response(404, $"user of id {id}. User does not exist in the database."));
+                    return NotFound(new Response(404, $"user of UserId {id}. User does not exist in the database."));
                 }
                 else
                 {
@@ -123,7 +128,7 @@ namespace TVShowsReviewAPI.Controllers
             var user = await _context.Users.FindAsync(id);
             if (user == null)
             {
-                return NotFound(new Response(404, $"user of id {id}. User does not exist in the database."));
+                return NotFound(new Response(404, $"user of UserId {id}. User does not exist in the database."));
             }
             
             // Update AVGUserReview from TVShows table if deleted user had reviews.

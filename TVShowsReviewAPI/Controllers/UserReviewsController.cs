@@ -59,7 +59,7 @@ namespace TVShowsReviewAPI.Controllers
                         {
                             return Ok(new Response(200, $"all user reviews of ShowId {id}.", showReviews));
                         }
-                        return Ok(new Response(200, $"There are not any user reviews for TV Show of ShowId {id}."));
+                        return NotFound(new Response(404,$"any user reviews for TV Show of ShowId {id}."));
                     }
                 case "users":
                     {
@@ -68,7 +68,7 @@ namespace TVShowsReviewAPI.Controllers
                         {
                             return Ok(new Response(200, $"all user reviews of UserId {id}.", usersReviews));
                         }
-                        return Ok(new Response(200, $"There are not any user reviews for user of UserId {id}."));
+                        return NotFound(new Response(404,$"any user reviews for user of UserId {id}."));
                     }
                 default:
                     return NotFound(new Response(404, $"any user reviews of type {type}."));
@@ -88,9 +88,9 @@ namespace TVShowsReviewAPI.Controllers
 
             if (userReview == null)
             {
-                return NotFound(new Response(404, $"user review with review id of {id}. The review does not exist in the database."));
+                return NotFound(new Response(404, $"user review with ReviewId of {id}. The review does not exist in the database."));
             }
-            return Ok(new Response(200, "user reviews", userReview));
+            return Ok(new Response(200, $"user review with ReviewId of {id}.", userReview));
         }
 
         // PUT: api/UserReviews/5
@@ -103,20 +103,26 @@ namespace TVShowsReviewAPI.Controllers
                 return BadRequest(new Response(400));
             }
 
-            // Allow editing for a user review but prevent ShowId, ReviewId, and UserId from being modified.
+            // Reference the old review and detach it from database.
+            var oldReview = await _context.UserReviews.FindAsync(id);
+            if (oldReview == null)
+            {
+                return BadRequest(new Response(400));
+            }
+            _context.Entry(oldReview).State = EntityState.Detached;
+
+            // Allow editing for a user review but return bad request if userid or showid are modified.
             _context.Entry(userReview).State = EntityState.Modified;
-            _context.Entry(userReview).Property(x => x.UserId).IsModified = false;
-            _context.Entry(userReview).Property(x => x.ReviewId).IsModified = false;
             _context.Entry(userReview).Property(x => x.ShowId).IsModified = false;
+            _context.Entry(userReview).Property(x => x.UserId).IsModified = false;
 
             // Check if user rating was updated. Based on this update AVGUserRating of ShowId.
-            if (_context.Entry(userReview).Property(x => x.UserRating).IsModified == true)
+            if (oldReview.UserRating != userReview.UserRating)
             {
-                var tvShow = await _context.TVShows.FindAsync(userReview.ShowId);
-                var reviews = await _context.UserReviews.Where(r => r.ShowId ==  userReview.ShowId).ToListAsync();
+                var tvShow = await _context.TVShows.FindAsync(oldReview.ShowId);
+                var reviews = await _context.UserReviews.Where(r => r.ShowId ==  oldReview.ShowId).ToListAsync();
                 tvShow.AVGUserRating = Math.Round(reviews.Average(r => r.UserRating), 1);
             }
-
             
             try
             {
@@ -126,7 +132,7 @@ namespace TVShowsReviewAPI.Controllers
             {
                 if (!UserReviewsExists(id))
                 {
-                    return NotFound(new Response(404, $"user review with review id of {id}. The review does not exist in the database."));
+                    return NotFound(new Response(404, $"user review with ReviewId of {id}. The review does not exist in the database."));
                 }
                 else
                 {
@@ -146,6 +152,11 @@ namespace TVShowsReviewAPI.Controllers
             {
                 return Problem("Entity set 'ShowsDBContext.UserReviews'  is null.");
             }
+            var tvShow = await _context.TVShows.FindAsync(userReview.ShowId);
+            if (tvShow == null)
+            {
+                return BadRequest(new Response(400));
+            }
 
             // Set ReviewId to null so that user is given a ReviewId from database.
             userReview.ReviewId = null;
@@ -164,7 +175,6 @@ namespace TVShowsReviewAPI.Controllers
             _context.UserReviews.Add(userReview);
             user.NumOfReviews++;
             // Update AVGUserRating for that show
-            var tvShow = await _context.TVShows.FindAsync(userReview.ShowId);
             var reviews = await _context.UserReviews.Where(r => r.ShowId == userReview.ShowId).ToListAsync();
 
             // The new user review does not register as added when recalculating using Average() so it must be manually done like this.
@@ -185,7 +195,7 @@ namespace TVShowsReviewAPI.Controllers
             var userReviews = await _context.UserReviews.FindAsync(id);
             if (userReviews == null)
             {
-                return NotFound(new Response(404, $"user review with review id of {id}. The review does not exist in the database."));
+                return NotFound(new Response(404, $"user review with ReviewId of {id}. The review does not exist in the database."));
             }
 
             var user = await _context.Users.FindAsync(userReviews.UserId);
@@ -217,7 +227,7 @@ namespace TVShowsReviewAPI.Controllers
             return NoContent();
         }
 
-        private bool UserReviewsExists(int? rid = 0, int sid = 0, int uid = 0)
+        private bool UserReviewsExists(int? rid, int sid = 0, int uid = 0)
         {
             return (_context.UserReviews?.Any(e => e.ReviewId == rid || (e.ShowId == sid && e.UserId == uid))).GetValueOrDefault();
         }

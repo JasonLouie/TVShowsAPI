@@ -24,9 +24,29 @@ namespace TVShowsReviewAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TVShows>>> GetTVShows()
         {
+            // Only uncomment if Users and UserReviews table had data loaded in. Comment it back after running api for the very first time.
+            /*
+            var Shows = await _context.TVShows.ToListAsync();
+            // Update the AVGUserRating for each tvShow. If no other ratings exist, default the rating back to 0.
+            foreach (var tvShow in Shows)
+            {
+                var reviews = await _context.UserReviews.Where(r => r.ShowId == tvShow.ShowId).ToListAsync();
+                if (reviews.Count > 0)
+                {
+                    tvShow.AVGUserRating = Math.Round(reviews.Average(r => r.UserRating), 1);
+                }
+                else
+                {
+                    tvShow.AVGUserRating = 0;
+                }
+            }
             if (_context.TVShows == null){
                 return NotFound(new Response(404, "any TV Shows. Table of TV Shows does not exist."));
             }
+            // Save data
+            await _context.SaveChangesAsync();
+            */
+            // End reload data.
 
             var tvShows = await _context.TVShows.ToListAsync();
 
@@ -60,7 +80,7 @@ namespace TVShowsReviewAPI.Controllers
 
             if (tVShow == null)
             {
-                return NotFound(new Response(404, $"TV Show of id {id}. The TV Show does not exist in the database."));
+                return NotFound(new Response(404, $"TV Show of ShowId {id}. The TV Show does not exist in the database."));
             }
 
             // Stores genres of the tvShow for output.
@@ -70,44 +90,7 @@ namespace TVShowsReviewAPI.Controllers
                 Genre = genre.Genre
             }).ToListAsync();
 
-            return Ok(new Response(200, $"TV Show of id {id}", tVShow));
-        }
-
-        // GET: api/TVShows/genre/{genre}
-        [HttpGet("genre/{genre}")]
-        public async Task<ActionResult<TVShows>> GetTVShows(string genre)
-        {
-            if (_context.TVShows == null)
-            {
-                return NotFound(new Response(404, "any TV Shows. Table of TV Shows does not exist."));
-            }
-            
-            var results = await _context.TVShows.Join(_context.ShowGenres, t => t.ShowId, s => s.ShowId, (tvshow, showgenre) => new
-            { tvshow, showgenre }).Join(_context.Genres.Where(g => g.Genre == genre), h => h.showgenre.GenreId, g => g.GenreId, (show, genre) => new TVShows
-            {
-                ShowId = show.tvshow.ShowId,
-                ShowName = show.tvshow.ShowName,
-                ShowDesc = show.tvshow.ShowDesc,
-                Genres = _context.Genres.Join(_context.ShowGenres.Where(s => s.ShowId == show.tvshow.ShowId), g => g.GenreId, s => s.GenreId, (genre, show) => new Genres
-                {
-                    GenreId = genre.GenreId,
-                    Genre = genre.Genre
-                }).ToList(),
-                NumSeasons = show.tvshow.NumSeasons,
-                NumEpisodes = show.tvshow.NumEpisodes,
-                EpisodeLength = show.tvshow.EpisodeLength,
-                YearReleased = show.tvshow.YearReleased,
-                Ongoing = show.tvshow.Ongoing,
-                RTrating = show.tvshow.RTrating,
-                IMDBrating = show.tvshow.IMDBrating,
-                AVGUserRating = show.tvshow.AVGUserRating
-            }).ToListAsync();
-
-            if (results.Count == 0)
-            {
-                return NotFound(new Response(404, $"any TV Shows of genre {genre}."));
-            }
-            return Ok(new Response(200, $"{results.Count} TV Shows of genre {genre}. The genre specified does not exist in the database.", results));
+            return Ok(new Response(200, $"TV Show of ShowId {id}", tVShow));
         }
 
         // GET: api/TVShows/IMDB/top/5
@@ -119,8 +102,14 @@ namespace TVShowsReviewAPI.Controllers
             {
                 return NotFound(new Response(404, "any TV Shows. Table of TV Shows does not exist."));
             }
-            bool best = true;
 
+            if (num <= 0 || num > _context.TVShows.ToList().Count)
+            {
+                return BadRequest(new Response(400));
+            }
+
+            // Check if results need to be ordered from ascending or descending.
+            bool best = true;
             if (order.ToLower() == "worst")
             {
                 best = false;
@@ -227,6 +216,43 @@ namespace TVShowsReviewAPI.Controllers
                 }
             }
             return NotFound(new Response(404, $"{num} {order} TV Shows from {database}."));
+        }
+
+        // GET: api/TVShows/genre/{genre}
+        [HttpGet("genre/{genre}")]
+        public async Task<ActionResult<TVShows>> GetTVShows(string genre)
+        {
+            if (_context.TVShows == null)
+            {
+                return NotFound(new Response(404, "any TV Shows. Table of TV Shows does not exist."));
+            }
+
+            var results = await _context.TVShows.Join(_context.ShowGenres, t => t.ShowId, s => s.ShowId, (tvshow, showgenre) => new
+            { tvshow, showgenre }).Join(_context.Genres.Where(g => g.Genre == genre), h => h.showgenre.GenreId, g => g.GenreId, (show, genre) => new TVShows
+            {
+                ShowId = show.tvshow.ShowId,
+                ShowName = show.tvshow.ShowName,
+                ShowDesc = show.tvshow.ShowDesc,
+                Genres = _context.Genres.Join(_context.ShowGenres.Where(s => s.ShowId == show.tvshow.ShowId), g => g.GenreId, s => s.GenreId, (genre, show) => new Genres
+                {
+                    GenreId = genre.GenreId,
+                    Genre = genre.Genre
+                }).ToList(),
+                NumSeasons = show.tvshow.NumSeasons,
+                NumEpisodes = show.tvshow.NumEpisodes,
+                EpisodeLength = show.tvshow.EpisodeLength,
+                YearReleased = show.tvshow.YearReleased,
+                Ongoing = show.tvshow.Ongoing,
+                RTrating = show.tvshow.RTrating,
+                IMDBrating = show.tvshow.IMDBrating,
+                AVGUserRating = show.tvshow.AVGUserRating
+            }).ToListAsync();
+
+            if (results.Count == 0)
+            {
+                return NotFound(new Response(404, $"any TV Shows of genre {genre}."));
+            }
+            return Ok(new Response(200, $"{results.Count} TV Shows of genre {genre}.", results));
         }
 
         // PUT: api/TVShows/5
