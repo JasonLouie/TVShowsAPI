@@ -1,0 +1,23 @@
+ShowId,ShowName,ShowDesc,NumSeasons,NumEpisodes,EpisodeLength,YearReleased,Ongoing,RTrating,IMDBrating,AVGUserRating
+1,"The Flash","After being struck by lightning, Barry Allen wakes up from his coma to discover he's been given the power of super speed, becoming the Flash, and fighting crime in Central City.",8,171,43,2014,1,0.89,7.6,8.4
+2,"Criminal Minds","The cases of the F.B.I. Behavioral Analysis Unit (B.A.U.), an elite group of profilers who analyze the nation's most dangerous serial killers and individual heinous crimes in an effort to anticipate their next moves before they strike again.",16,326,42,2005,0,0.85,8.1,5
+3,"The Office","A mockumentary on a group of typical office workers, where the workday consists of ego clashes, inappropriate behavior, and tedium.",9,201,22,2005,0,0.81,6,8
+4,"Breaking Bad","A chemistry teacher diagnosed with inoperable lung cancer turns to manufacturing and selling methamphetamine with a former student in order to secure his family's future.",5,62,49,2008,0,0.96,7.6,5
+5,"The Walking Dead","Sheriff Deputy Rick Grimes wakes up from a coma to learn the world is in ruins and must lead a group of survivors to stay alive.",11,177,44,2010,0,0.8,8.1,8
+6,Arrow,"Spoiled billionaire playboy Oliver Queen is missing and presumed dead when his yacht is lost at sea. He returns five years later a changed man, determined to clean up the city as a hooded vigilante armed with a bow.",8,170,42,2012,0,0.86,7.5,0
+7,"The X Files","Two F.B.I. Agents, Fox Mulder the believer and Dana Scully the skeptic, investigate the strange and unexplained, while hidden forces work to impede their efforts.",11,218,45,1993,0,0.74,8.6,8
+8,"South Park","Follows the misadventures of four irreverent grade-schoolers in the quiet, dysfunctional town of South Park, Colorado.",25,319,22,1997,1,0.8,8.7,10
+9,"Family Guy","In a wacky Rhode Island town, a dysfunctional family strives to cope with everyday life as they are thrown from one crazy scenario to another.",21,397,22,1999,1,0.63,8.2,0
+10,"Parks and Recreation","The absurd antics of an Indiana town's public officials as they pursue sundry projects to make their city a better place.",7,126,22,2009,0,0.93,8.6,9.3
+11,Lost,"The survivors of a plane crash are forced to work together in order to survive on a seemingly deserted tropical island.",6,121,44,2004,0,0.85,8.3,0
+12,"Squid Game","Hundreds of cash-strapped players accept a strange invitation to compete in children's games. Inside, a tempting prize awaits with deadly high stakes. A survival game that has a whopping 45.6 billion-won prize at stake.",1,9,55,2021,1,0.95,8,0
+13,"Rick and Morty","An animated series that follows the exploits of a super scientist and his not-so-bright grandson.",6,58,23,2013,1,0.93,9.1,0
+14,Friends,"Follows the personal and professional lives of six twenty to thirty year-old friends living in the Manhattan borough of New York City.",10,236,22,1994,0,0.93,8.9,0
+15,Daredevil,"A blind lawyer by day, vigilante by night. Matt Murdock fights the crime of New York as Daredevil.",3,39,54,2015,0,0.92,8.6,0
+16,"Key & Peele","Project sees Keegan-Michael Key and Jordan Peele in front of a live studio audience bantering about a topic weaved between filmed shorts and sketches.",5,53,30,2012,0,0.97,8.3,0
+17,"How I Met Your Mother","A father recounts to his children - through a series of flashbacks - the journey he and his four best friends took leading up to him meeting their mother.",9,208,22,2005,0,0.84,8.3,0
+18,"The Simpsons","The satiric adventures of a working-class family in the misfit city of Springfield.",34,736,22,1989,1,0.85,8.7,0
+19,"Blue Bloods","Revolves around a family of New York cops.",13,260,43,2010,1,0.85,7.7,0
+20,Supernatural,"Two brothers follow their father's footsteps as hunters, fighting evil supernatural beings of many kinds, including monsters, demons, and gods that roam the earth.",15,327,44,2005,0,0.93,8.4,9
+21,"Game of Thrones","Nine noble families fight for control over the lands of Westeros, while an ancient enemy returns after being dormant for millennia.",8,73,57,2011,0,0.89,9.2,8.8
+22,"Stranger Things","When a young boy disappears, his mother, a police chief and his friends must confront terrifying supernatural forces in order to get him back.",4,34,51,2016,1,0.92,8.7,8
